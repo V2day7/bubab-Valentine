@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Will you be my Valentine?</title>
+    <style>
+      :root {
+        --bg1: #ffdee9;
+        --bg2: #b5fffc;
+        --ink: #1b1b1b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background:
+          radial-gradient(circle at 20% 20%, var(--bg2), transparent 45%),
+          radial-gradient(circle at 80% 20%, var(--bg1), transparent 45%),
+          linear-gradient(135deg, #fff 0%, #ffe6ef 55%, #e6fffe 100%);
+        color: var(--ink);
+        overflow: hidden;
+      }
+      .card {
+        width: min(560px, 92vw);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 24px;
+        padding: 28px 22px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        backdrop-filter: blur(8px);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(28px, 4vw, 42px);
+      }
+      p {
+        margin: 0 0 18px;
+        opacity: 0.85;
+      }
+      .btns {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      button {
+        border: 0;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+        transition:
+          transform 0.12s ease,
+          filter 0.12s ease;
+        user-select: none;
+      }
+      button:hover {
+        transform: translateY(-1px) scale(1.02);
+        filter: brightness(1.02);
+      }
+      button:active {
+        transform: translateY(0) scale(0.99);
+      }
+      #yesBtn {
+        background: #ff4d7d;
+        color: #fff;
+      }
+      #noBtn {
+        background: #222;
+        color: #fff;
+      }
+
+      /* Popups */
+      .popup {
+        position: fixed;
+        min-width: 170px;
+        max-width: 260px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 14px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+        font-weight: 700;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        animation:
+          popIn 0.18s ease-out,
+          wiggle 0.7s ease-in-out infinite;
+      }
+      @keyframes popIn {
+        from {
+          transform: translate(-50%, -50%) scale(0.6);
+          opacity: 0.2;
+        }
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+      @keyframes wiggle {
+        0%,
+        100% {
+          filter: none;
+        }
+        50% {
+          filter: hue-rotate(45deg) contrast(1.1);
+        }
+      }
+
+      /* Glitch effect wrapper */
+      .glitching {
+        animation: screenJitter 0.08s infinite linear;
+        filter: saturate(1.6) contrast(1.15);
+      }
+      @keyframes screenJitter {
+        0% {
+          transform: translate(0, 0) skewX(0deg);
+        }
+        20% {
+          transform: translate(-6px, 2px) skewX(1deg);
+        }
+        40% {
+          transform: translate(5px, -3px) skewX(-1deg);
+        }
+        60% {
+          transform: translate(-4px, -2px) skewX(1deg);
+        }
+        80% {
+          transform: translate(6px, 3px) skewX(-1deg);
+        }
+        100% {
+          transform: translate(0, 0) skewX(0deg);
+        }
+      }
+
+      /* RGB split overlay */
+      .rgbSplit::before,
+      .rgbSplit::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: inherit;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        opacity: 0.35;
+        z-index: 9998;
+      }
+      .rgbSplit::before {
+        transform: translate(6px, 0);
+        filter: hue-rotate(140deg);
+      }
+      .rgbSplit::after {
+        transform: translate(-6px, 0);
+        filter: hue-rotate(-140deg);
+      }
+
+      /* Static overlay */
+      .noise {
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+        background-size: 180px 180px;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9997;
+        transition: opacity 0.15s ease;
+      }
+      .noise.on {
+        opacity: 0.55;
+      }
+
+      /* Video modal */
+      .videoModal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 10000;
+        padding: 18px;
+      }
+      .videoModal.on {
+        display: grid;
+      }
+      .videoBox {
+        width: min(860px, 96vw);
+        aspect-ratio: 16/9;
+        background: #000;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+      }
+      .hint {
+        margin-top: 10px;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 13px;
+        text-align: center;
+        max-width: 70ch;
+        line-height: 1.3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise" id="noise"></div>
+
+    <div class="card" id="card">
+      <h1>Will you be my Valentine? 💘</h1>
+      <p>Choose wisely… (no pressure 😈)</p>
+      <div class="btns">
+        <button id="yesBtn">Yes 💖</button>
+        <button id="noBtn">No 🙃</button>
+      </div>
+      <p style="margin-top: 14px; font-size: 12px; opacity: 0.7">
+        Tip: Browsers may block autoplay — clicking the button counts as user
+        interaction, so it usually works.
+      </p>
+    </div>
+
+    <div class="videoModal" id="videoModal" aria-hidden="true">
+      <div>
+        <div class="videoBox">
+          <iframe
+            id="yt"
+            src=""
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <div class="hint">
+          If the video doesn’t autoplay, it’s your browser’s autoplay policy.
+          You can swap in different YouTube IDs below.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === CHANGE THESE VIDEO IDs ===
+      // Put any YouTube video ID (the part after "v=" in a YouTube URL)
+      const YES_VIDEO_ID = "3wxyN3z9PL4"; // Nothing's Gonna Stop Us Now
+      const NO_VIDEO_ID = "kf6tVm30UYY"; // your NO link (clean ID, no playlist)
+
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      const videoModal = document.getElementById("videoModal");
+      const yt = document.getElementById("yt");
+      const noise = document.getElementById("noise");
+
+      let glitchTimer = null;
+      let popupTimer = null;
+      let resetTimer = null;
+
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function showVideo(videoId) {
+        const src =
+          `https://www.youtube-nocookie.com/embed/${videoId}` +
+          `?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1`;
+
+        yt.src = src;
+        videoModal.classList.add("on");
+        videoModal.setAttribute("aria-hidden", "false");
+      }
+
+      function stopVideo() {
+        yt.src = ""; // unload player
+        videoModal.classList.remove("on");
+        videoModal.setAttribute("aria-hidden", "true");
+      }
+
+      function makePopup(text) {
+        const p = document.createElement("div");
+        p.className = "popup";
+        p.textContent = text;
+
+        // Random position with safe padding
+        const pad = 40;
+        const x = rand(pad, window.innerWidth - pad);
+        const y = rand(pad, window.innerHeight - pad);
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+
+        // Random tiny rotation
+        p.style.rotate = rand(-6, 6) + "deg";
+
+        document.body.appendChild(p);
+
+        // Auto-remove after a bit
+        setTimeout(() => p.remove(), rand(1200, 2200));
+      }
+
+      function clearAllPopups() {
+        document.querySelectorAll(".popup").forEach((el) => el.remove());
+      }
+
+      function startGlitch() {
+        document.body.classList.add("glitching", "rgbSplit");
+        noise.classList.add("on");
+
+        // Spam popups randomly
+        popupTimer = setInterval(() => {
+          const variants = [
+            "why did you say no?",
+            "WHY DID YOU SAY NO??",
+            "no is not an option 😭",
+            "please reconsider 🥺",
+            "error: heartbreak detected 💔",
+          ];
+          makePopup(variants[Math.floor(Math.random() * variants.length)]);
+          // sometimes make a second popup quickly
+          if (Math.random() < 0.35)
+            setTimeout(() => makePopup("why did you say no?"), 80);
+        }, 140);
+
+        // Micro-flash the whole page
+        glitchTimer = setInterval(() => {
+          document.body.style.filter =
+            Math.random() < 0.5
+              ? "saturate(2) contrast(1.2) brightness(1.05)"
+              : "saturate(1.2) contrast(1.1)";
+        }, 120);
+      }
+
+      function stopGlitch() {
+        document.body.classList.remove("glitching", "rgbSplit");
+        noise.classList.remove("on");
+        document.body.style.filter = "";
+        clearInterval(popupTimer);
+        popupTimer = null;
+        clearInterval(glitchTimer);
+        glitchTimer = null;
+        clearAllPopups();
+      }
+
+      function resetToStart() {
+        stopVideo();
+        stopGlitch();
+        // optional: little reset popup
+        // makePopup("Back to start 🙂");
+      }
+
+      function runNoFlow() {
+        // NO: glitch + random popups + play video, then reset after 10s
+        startGlitch();
+        makePopup("why did you say no?");
+        showVideo(NO_VIDEO_ID);
+
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          resetToStart();
+        }, 10000);
+      }
+
+      function runYesFlow() {
+        // YES: friendly popup + play video (no glitch), keep video for 10s then reset
+        makePopup("YAY!! 💖 You said yes!");
+        showVideo(YES_VIDEO_ID);
+
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          resetToStart();
+        }, 10000);
+      }
+
+      // Click outside video to close early (optional)
+      videoModal.addEventListener("click", (e) => {
+        if (e.target === videoModal) resetToStart();
+      });
+
+      yesBtn.addEventListener("click", runYesFlow);
+      noBtn.addEventListener("click", runNoFlow);
+
+      // Keep popups inside viewport on resize (not required, but helps)
+      window.addEventListener("resize", () => {});
+    </script>
+  </body>
+</html>
