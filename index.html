@@ -125,7 +125,7 @@
         }
       }
 
-      /* Glitch effect wrapper */
+      /* Glitch effect */
       .glitching {
         animation: screenJitter 0.08s infinite linear;
         filter: saturate(1.6) contrast(1.15);
@@ -200,21 +200,29 @@
       .videoModal.on {
         display: grid;
       }
-      .videoBox {
+
+      .videoWrap {
         width: min(860px, 96vw);
-        aspect-ratio: 16/9;
+      }
+      .videoBox {
+        width: 100%;
+        aspect-ratio: 16 / 9;
         background: #000;
         border-radius: 18px;
         overflow: hidden;
         box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
       }
-      iframe {
+
+      video {
         width: 100%;
         height: 100%;
-        border: 0;
         display: block;
+        object-fit: cover;
+        background: #000;
       }
+
       .hint {
         margin-top: 10px;
         color: rgba(255, 255, 255, 0.88);
@@ -223,8 +231,27 @@
         max-width: 70ch;
         line-height: 1.3;
       }
+
+      .soundBtn {
+        margin: 10px auto 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(255, 255, 255, 0.95);
+        cursor: pointer;
+        font-weight: 800;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      }
+      .soundBtn:active {
+        transform: scale(0.99);
+      }
     </style>
   </head>
+
   <body>
     <div class="noise" id="noise"></div>
 
@@ -236,39 +263,41 @@
         <button id="noBtn">No 🙃</button>
       </div>
       <p style="margin-top: 14px; font-size: 12px; opacity: 0.7">
-        Tip: Browsers may block autoplay — clicking the button counts as user
-        interaction, so it usually works.
+        iPhone rule: video can autoplay only when muted. Tap “Sound” to unmute.
       </p>
     </div>
 
     <div class="videoModal" id="videoModal" aria-hidden="true">
-      <div>
+      <div class="videoWrap">
         <div class="videoBox">
-          <iframe
-            id="yt"
-            src=""
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowfullscreen
-          ></iframe>
+          <video id="vid" playsinline muted preload="auto"></video>
         </div>
+
+        <div style="text-align: center">
+          <button class="soundBtn" id="soundBtn" type="button">
+            🔊 Tap for sound
+          </button>
+        </div>
+
         <div class="hint">
-          If the video doesn’t autoplay, it’s your browser’s autoplay policy.
-          You can swap in different YouTube IDs below.
+          Tip: iPhone blocks autoplay with sound. Autoplay starts muted; tap for
+          sound. Tap outside the video to close early.
         </div>
       </div>
     </div>
 
     <script>
-      // === CHANGE THESE VIDEO IDs ===
-      // Put any YouTube video ID (the part after "v=" in a YouTube URL)
-      const YES_VIDEO_ID = "3wxyN3z9PL4"; // Nothing's Gonna Stop Us Now
-      const NO_VIDEO_ID = "kf6tVm30UYY"; // your NO link (clean ID, no playlist)
+      // Put these files in the SAME GitHub repo folder as index.html
+      // If your filenames differ, change them here.
+      const YES_VIDEO_SRC = "yes.mov";
+      const NO_VIDEO_SRC = "no.mov";
 
       const yesBtn = document.getElementById("yesBtn");
       const noBtn = document.getElementById("noBtn");
       const videoModal = document.getElementById("videoModal");
-      const yt = document.getElementById("yt");
+      const vid = document.getElementById("vid");
       const noise = document.getElementById("noise");
+      const soundBtn = document.getElementById("soundBtn");
 
       let glitchTimer = null;
       let popupTimer = null;
@@ -278,40 +307,66 @@
         return Math.random() * (max - min) + min;
       }
 
-      function showVideo(videoId) {
-        const src =
-          `https://www.youtube-nocookie.com/embed/${videoId}` +
-          `?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1`;
+      function showVideo(src) {
+        // reset
+        vid.pause();
+        vid.removeAttribute("src");
+        vid.load();
 
-        yt.src = src;
+        vid.src = src;
+
+        // iOS autoplay rules: must be muted + playsinline
+        vid.muted = true;
+        vid.playsInline = true;
+
         videoModal.classList.add("on");
         videoModal.setAttribute("aria-hidden", "false");
+
+        const p = vid.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(() => {
+            // If autoplay is blocked, user can tap the video/sound button
+            console.log("Autoplay blocked; user interaction needed.");
+          });
+        }
       }
 
       function stopVideo() {
-        yt.src = ""; // unload player
+        vid.pause();
+        vid.currentTime = 0;
+        vid.removeAttribute("src");
+        vid.load();
+
         videoModal.classList.remove("on");
         videoModal.setAttribute("aria-hidden", "true");
       }
+
+      soundBtn.addEventListener("click", () => {
+        // User gesture = allowed to enable sound
+        vid.muted = false;
+        // If it was blocked, try play again
+        const p = vid.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      });
+
+      // Also allow tapping the video itself to unmute
+      vid.addEventListener("click", () => {
+        vid.muted = false;
+      });
 
       function makePopup(text) {
         const p = document.createElement("div");
         p.className = "popup";
         p.textContent = text;
 
-        // Random position with safe padding
         const pad = 40;
         const x = rand(pad, window.innerWidth - pad);
         const y = rand(pad, window.innerHeight - pad);
         p.style.left = x + "px";
         p.style.top = y + "px";
-
-        // Random tiny rotation
         p.style.rotate = rand(-6, 6) + "deg";
 
         document.body.appendChild(p);
-
-        // Auto-remove after a bit
         setTimeout(() => p.remove(), rand(1200, 2200));
       }
 
@@ -323,7 +378,6 @@
         document.body.classList.add("glitching", "rgbSplit");
         noise.classList.add("on");
 
-        // Spam popups randomly
         popupTimer = setInterval(() => {
           const variants = [
             "why did you say no?",
@@ -333,12 +387,10 @@
             "error: heartbreak detected 💔",
           ];
           makePopup(variants[Math.floor(Math.random() * variants.length)]);
-          // sometimes make a second popup quickly
           if (Math.random() < 0.35)
             setTimeout(() => makePopup("why did you say no?"), 80);
         }, 140);
 
-        // Micro-flash the whole page
         glitchTimer = setInterval(() => {
           document.body.style.filter =
             Math.random() < 0.5
@@ -361,43 +413,31 @@
       function resetToStart() {
         stopVideo();
         stopGlitch();
-        // optional: little reset popup
-        // makePopup("Back to start 🙂");
       }
 
       function runNoFlow() {
-        // NO: glitch + random popups + play video, then reset after 10s
         startGlitch();
         makePopup("why did you say no?");
-        showVideo(NO_VIDEO_ID);
+        showVideo(NO_VIDEO_SRC);
 
         clearTimeout(resetTimer);
-        resetTimer = setTimeout(() => {
-          resetToStart();
-        }, 10000);
+        resetTimer = setTimeout(resetToStart, 10000);
       }
 
       function runYesFlow() {
-        // YES: friendly popup + play video (no glitch), keep video for 10s then reset
         makePopup("YAY!! 💖 You said yes!");
-        showVideo(YES_VIDEO_ID);
+        showVideo(YES_VIDEO_SRC);
 
         clearTimeout(resetTimer);
-        resetTimer = setTimeout(() => {
-          resetToStart();
-        }, 10000);
+        resetTimer = setTimeout(resetToStart, 10000);
       }
 
-      // Click outside video to close early (optional)
       videoModal.addEventListener("click", (e) => {
         if (e.target === videoModal) resetToStart();
       });
 
       yesBtn.addEventListener("click", runYesFlow);
       noBtn.addEventListener("click", runNoFlow);
-
-      // Keep popups inside viewport on resize (not required, but helps)
-      window.addEventListener("resize", () => {});
     </script>
   </body>
 </html>
