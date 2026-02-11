@@ -464,24 +464,55 @@
         }
       }
 
+      /* ===================================================== */
+      /* MOBILE-FRIENDLY FLOATING TEXT (YES + NO, SAME ANIM)    */
+      /* ===================================================== */
       .floatingText {
         position: absolute;
         left: 50%;
-        top: 12%;
+        top: 10%;
         transform: translateX(-50%);
         font-weight: 950;
-        font-size: clamp(22px, 3vw, 34px);
+        font-size: clamp(16px, 3.8vw, 34px);
         color: rgba(255, 255, 255, 0.92);
         text-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
         opacity: 0;
         animation: floatText 2.6s ease-in-out infinite;
-        white-space: nowrap;
-        display: none; /* ✅ starts hidden */
+
+        /* ✅ mobile friendly */
+        width: min(92vw, 720px);
+        padding: 10px 14px;
+        text-align: center;
+        white-space: normal; /* wrap */
+        word-break: break-word;
+        line-height: 1.15;
+        border-radius: 16px;
+        background: rgba(0, 0, 0, 0.18);
+        backdrop-filter: blur(6px);
+
+        display: none; /* starts hidden */
       }
+
+      /* ✅ notch-safe */
+      @supports (padding: env(safe-area-inset-top)) {
+        .floatingText {
+          top: calc(env(safe-area-inset-top) + 14px);
+        }
+      }
+
+      /* ✅ tiny phones */
+      @media (max-width: 380px) {
+        .floatingText {
+          top: 12%;
+          font-size: clamp(15px, 4.3vw, 22px);
+          padding: 10px 12px;
+        }
+      }
+
       @keyframes floatText {
         0% {
           opacity: 0;
-          transform: translateX(-50%) translateY(8px) scale(0.98);
+          transform: translateX(-50%) translateY(10px) scale(0.98);
         }
         15% {
           opacity: 1;
@@ -495,7 +526,7 @@
         }
         100% {
           opacity: 0;
-          transform: translateX(-50%) translateY(8px) scale(0.98);
+          transform: translateX(-50%) translateY(10px) scale(0.98);
         }
       }
 
@@ -746,7 +777,7 @@
         heartsTimer = null;
         sparkleTimer = null;
         fxLayer.classList.remove("on");
-        floatingText.style.display = "none"; // ✅ hide after video
+        floatingText.style.display = "none"; // hide after video
         [...fxLayer.querySelectorAll(".heart,.sparkle")].forEach((el) =>
           el.remove(),
         );
@@ -756,7 +787,6 @@
         stopFX();
         fxLayer.classList.add("on");
 
-        // ✅ SAME animation sequence, just different text
         floatingText.textContent =
           type === "yes" ? LOVE_TEXT_YES : LOVE_TEXT_NO;
         floatingText.style.display = "block";
@@ -808,10 +838,9 @@
           });
         }
 
-        // ✅ now both YES and NO get the same floatingText animation
         startFX(type);
 
-        // ✅ glitch ONLY for NO video
+        // glitch ONLY for NO video
         if (type === "no") startGlitch();
       }
 
