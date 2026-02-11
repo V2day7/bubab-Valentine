@@ -32,6 +32,7 @@
         color: var(--ink);
         overflow: hidden;
       }
+
       .card {
         width: min(560px, 92vw);
         background: rgba(255, 255, 255, 0.78);
@@ -52,6 +53,7 @@
         margin: 0 0 18px;
         opacity: 0.85;
       }
+
       .btns {
         display: flex;
         gap: 12px;
@@ -62,7 +64,7 @@
         border: 0;
         padding: 12px 18px;
         border-radius: 999px;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 16px;
         cursor: pointer;
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
@@ -87,17 +89,17 @@
         color: #fff;
       }
 
-      /* Popups */
+      /* Popup */
       .popup {
         position: fixed;
-        min-width: 170px;
-        max-width: 260px;
+        min-width: 180px;
+        max-width: 360px;
         padding: 10px 12px;
         background: rgba(255, 255, 255, 0.92);
         border: 1px solid rgba(0, 0, 0, 0.15);
         border-radius: 14px;
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-        font-weight: 700;
+        font-weight: 800;
         z-index: 9999;
         transform: translate(-50%, -50%);
         pointer-events: none;
@@ -125,319 +127,811 @@
         }
       }
 
-      /* Glitch effect */
-      .glitching {
-        animation: screenJitter 0.08s infinite linear;
-        filter: saturate(1.6) contrast(1.15);
-      }
-      @keyframes screenJitter {
-        0% {
-          transform: translate(0, 0) skewX(0deg);
-        }
-        20% {
-          transform: translate(-6px, 2px) skewX(1deg);
-        }
-        40% {
-          transform: translate(5px, -3px) skewX(-1deg);
-        }
-        60% {
-          transform: translate(-4px, -2px) skewX(1deg);
-        }
-        80% {
-          transform: translate(6px, 3px) skewX(-1deg);
-        }
-        100% {
-          transform: translate(0, 0) skewX(0deg);
-        }
-      }
-
-      /* RGB split overlay */
-      .rgbSplit::before,
-      .rgbSplit::after {
-        content: "";
+      /* Success overlay */
+      .successOverlay {
         position: fixed;
         inset: 0;
-        background: inherit;
-        pointer-events: none;
-        mix-blend-mode: screen;
-        opacity: 0.35;
-        z-index: 9998;
+        display: none;
+        place-items: center;
+        z-index: 12000;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 18px;
       }
-      .rgbSplit::before {
-        transform: translate(6px, 0);
-        filter: hue-rotate(140deg);
-      }
-      .rgbSplit::after {
-        transform: translate(-6px, 0);
-        filter: hue-rotate(-140deg);
+      .successOverlay.on {
+        display: grid;
       }
 
-      /* Static overlay */
-      .noise {
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-        background-size: 180px 180px;
-        opacity: 0;
-        pointer-events: none;
-        z-index: 9997;
-        transition: opacity 0.15s ease;
-      }
-      .noise.on {
-        opacity: 0.55;
+      .successCard {
+        width: min(600px, 94vw);
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 22px;
+        padding: 18px 16px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+        text-align: center;
       }
 
-      /* Video modal */
+      .successRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .successRow img {
+        width: 130px;
+        height: 130px;
+        object-fit: contain;
+        filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.18));
+      }
+
+      .successText {
+        font-weight: 950;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+      .mini {
+        margin-top: 6px;
+        font-size: 12px;
+        opacity: 0.75;
+      }
+
+      .continueBtn {
+        margin-top: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 22px;
+        border-radius: 999px;
+        font-weight: 950;
+        cursor: pointer;
+        border: 0;
+        background: #ff4d7d;
+        color: #fff;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+        opacity: 1;
+        font-size: 17px;
+      }
+      .continueBtn:active {
+        transform: scale(0.99);
+      }
+
+      .countdown {
+        margin-top: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 76px;
+        padding: 8px 18px;
+        border-radius: 14px;
+        font-weight: 950;
+        font-size: 46px;
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      /* Video modal (cinema) */
       .videoModal {
         position: fixed;
         inset: 0;
         display: none;
         place-items: center;
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(0, 0, 0, 0.8);
         z-index: 10000;
-        padding: 18px;
+        padding: 10px;
       }
       .videoModal.on {
         display: grid;
       }
 
-      .videoWrap {
-        width: min(860px, 96vw);
+      .panel {
+        width: min(1180px, 98vw);
       }
+
       .videoBox {
         width: 100%;
-        aspect-ratio: 16 / 9;
+        height: min(86vh, 720px);
         background: #000;
-        border-radius: 18px;
+        border-radius: 22px;
         overflow: hidden;
-        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 50px 140px rgba(0, 0, 0, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: scale(0.92);
+        opacity: 0;
         position: relative;
+      }
+
+      .videoBox::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          circle at center,
+          rgba(0, 0, 0, 0) 45%,
+          rgba(0, 0, 0, 0.55) 100%
+        );
+        z-index: 2;
+      }
+
+      .videoModal.on .videoBox {
+        animation: videoEnter 0.65s ease-out forwards;
+      }
+      @keyframes videoEnter {
+        0% {
+          transform: scale(0.86) translateY(24px);
+          opacity: 0;
+        }
+        60% {
+          transform: scale(1.03) translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
       }
 
       video {
         width: 100%;
         height: 100%;
-        display: block;
-        object-fit: cover;
+        object-fit: contain;
         background: #000;
+        display: block;
+        z-index: 1;
       }
 
       .hint {
-        margin-top: 10px;
+        margin-top: 12px;
         color: rgba(255, 255, 255, 0.88);
         font-size: 13px;
         text-align: center;
-        max-width: 70ch;
         line-height: 1.3;
+        opacity: 0.95;
       }
 
-      .soundBtn {
-        margin: 10px auto 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        background: rgba(0, 0, 0, 0.35);
-        color: rgba(255, 255, 255, 0.95);
-        cursor: pointer;
-        font-weight: 800;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      /* NO loop area */
+      .noArea {
+        display: none;
+        margin-top: 14px;
+        padding: 14px 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.62);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
       }
-      .soundBtn:active {
-        transform: scale(0.99);
+      .noArea.on {
+        display: block;
+      }
+      .noRow {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .noRow img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+      }
+      .noMsg {
+        font-weight: 900;
+        font-size: 16px;
+      }
+
+      /* BOOM */
+      .boomFlash {
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20000;
+      }
+      .boomFlash.active {
+        animation: boomFlashAnim 0.38s ease-out forwards;
+      }
+      @keyframes boomFlashAnim {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .boomText {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 104px;
+        font-weight: 950;
+        color: #ff4d7d;
+        text-shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+        z-index: 21000;
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      .boomText.active {
+        animation: boomTextAnim 0.75s ease-out forwards;
+      }
+      @keyframes boomTextAnim {
+        0% {
+          transform: scale(0.3) translateY(12px);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.45) translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 0;
+        }
+      }
+
+      .screenShake {
+        animation: screenShakeAnim 0.55s ease-in-out;
+      }
+      @keyframes screenShakeAnim {
+        0% {
+          transform: translate(0);
+        }
+        15% {
+          transform: translate(-14px, 7px);
+        }
+        30% {
+          transform: translate(14px, -7px);
+        }
+        45% {
+          transform: translate(-10px, 7px);
+        }
+        60% {
+          transform: translate(10px, -7px);
+        }
+        75% {
+          transform: translate(-7px, 5px);
+        }
+        90% {
+          transform: translate(7px, -5px);
+        }
+        100% {
+          transform: translate(0);
+        }
+      }
+
+      /* Cinematic overlays */
+      .fxLayer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 22000;
+        display: none;
+        overflow: hidden;
+      }
+      .fxLayer.on {
+        display: block;
+      }
+
+      .heart {
+        position: absolute;
+        animation: floatUp 1.85s ease-out forwards;
+        filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.25));
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(0.85);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-380px) scale(1.35);
+          opacity: 0;
+        }
+      }
+
+      .sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 14px rgba(255, 255, 255, 0.85);
+        animation: twinkle 1.15s ease-in-out forwards;
+        opacity: 0;
+      }
+      @keyframes twinkle {
+        0% {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        35% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.2);
+          opacity: 0;
+        }
+      }
+
+      .floatingText {
+        position: absolute;
+        left: 50%;
+        top: 12%;
+        transform: translateX(-50%);
+        font-weight: 950;
+        font-size: clamp(22px, 3vw, 34px);
+        color: rgba(255, 255, 255, 0.92);
+        text-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+        opacity: 0;
+        animation: floatText 2.6s ease-in-out infinite;
+        white-space: nowrap;
+        display: none; /* ✅ starts hidden */
+      }
+      @keyframes floatText {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(8px) scale(0.98);
+        }
+        15% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(-10px) scale(1.02);
+        }
+        85% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(8px) scale(0.98);
+        }
+      }
+
+      /* ========================= */
+      /* GLITCH EFFECT (NO VIDEO)  */
+      /* ========================= */
+      .glitchActive {
+        animation: glitchRGB 0.25s infinite;
+      }
+      @keyframes glitchRGB {
+        0% {
+          filter: none;
+        }
+        20% {
+          filter: contrast(1.4) saturate(1.3);
+        }
+        40% {
+          filter: hue-rotate(-10deg);
+        }
+        60% {
+          filter: hue-rotate(10deg);
+        }
+        80% {
+          filter: contrast(1.2);
+        }
+        100% {
+          filter: none;
+        }
+      }
+
+      .glitchBar {
+        position: fixed;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.08);
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 23000;
+        animation: glitchBarAnim 0.2s ease-out forwards;
+      }
+      @keyframes glitchBarAnim {
+        0% {
+          opacity: 1;
+          transform: translateX(-40px);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(40px);
+        }
       }
     </style>
   </head>
 
   <body>
-    <div class="noise" id="noise"></div>
-
     <div class="card" id="card">
-      <h1>Will you be my Valentine? 💘</h1>
-      <p>Choose wisely… (no pressure 😈)</p>
-      <div class="btns">
+      <h1>Hello Bubab, Will you be my Valentine? 💘</h1>
+      <p id="subtitle">BUBAB PLEZZZZZ</p>
+
+      <div class="btns" id="mainBtns">
         <button id="yesBtn">Yes 💖</button>
         <button id="noBtn">No 🙃</button>
       </div>
-      <p style="margin-top: 14px; font-size: 12px; opacity: 0.7">
-        iPhone rule: video can autoplay only when muted. Tap “Sound” to unmute.
-      </p>
+
+      <div class="noArea" id="noArea">
+        <div class="noRow">
+          <img src="angrycat.gif" alt="Angry cat" />
+          <div>
+            <div class="noMsg" id="noMsg">Why no… I’ll ask again 😾</div>
+            <div style="opacity: 0.75; margin-top: 6px; font-size: 12px"></div>
+          </div>
+        </div>
+        <div class="btns" style="margin-top: 12px">
+          <button id="yesBtn2">Yes 💖</button>
+          <button id="noBtn2">No 🙃</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 14px; font-size: 12px; opacity: 0.7"></p>
     </div>
 
-    <div class="videoModal" id="videoModal" aria-hidden="true">
-      <div class="videoWrap">
-        <div class="videoBox">
-          <video id="vid" playsinline muted preload="auto"></video>
+    <!-- SUCCESS OVERLAY -->
+    <div class="successOverlay" id="successOverlay" aria-hidden="true">
+      <div class="successCard">
+        <div class="successRow">
+          <img id="successGif" src="happycat.gif" alt="Cat gif" />
+          <div>
+            <div class="successText" id="successText">YAY!! 💖</div>
+            <div class="mini" id="successMini">Get ready…</div>
+          </div>
         </div>
 
-        <div style="text-align: center">
-          <button class="soundBtn" id="soundBtn" type="button">
-            🔊 Tap for sound
-          </button>
-        </div>
+        <div class="countdown" id="countdown">3</div>
 
-        <div class="hint">
-          Tip: iPhone blocks autoplay with sound. Autoplay starts muted; tap for
-          sound. Tap outside the video to close early.
-        </div>
+        <button class="continueBtn" id="continueBtn" type="button">
+          Continue 💖
+        </button>
       </div>
     </div>
 
+    <!-- VIDEO MODAL -->
+    <div class="videoModal" id="videoModal" aria-hidden="true">
+      <div class="panel">
+        <div class="videoBox">
+          <video id="vid" playsinline muted preload="auto"></video>
+        </div>
+        <div class="hint">Tap outside to close early.</div>
+      </div>
+    </div>
+
+    <!-- BOOM -->
+    <div class="boomFlash" id="boomFlash"></div>
+    <div class="boomText" id="boomText">BOOM 💖</div>
+
+    <!-- CINEMATIC FX -->
+    <div class="fxLayer" id="fxLayer">
+      <div class="floatingText" id="floatingText">💖 I LOVE YOU BUBAB 💖</div>
+    </div>
+
     <script>
-      // Put these files in the SAME GitHub repo folder as index.html
-      // If your filenames differ, change them here.
+      // Files in repo root
       const YES_VIDEO_SRC = "yes.mov";
       const NO_VIDEO_SRC = "no.mov";
+      const HAPPY_GIF_SRC = "happycat.gif";
+      const ANGRY_GIF_SRC = "angrycat.gif";
+
+      // Customize texts here
+      const YES_POPUP_TEXT = "YAY!! 💖 (edit this message)";
+      const SUCCESS_TEXT = "YEHEEY SEE YOU ON VALENTINES DAY BUBAB💖!!";
+      const NO_LOOP_TEXT =
+        "BUBAB BAKET NO, TANONENG KETA OLET, Will You Be my Valentines?😾";
+
+      // ✅ Texts for BOTH versions (same animation)
+      const LOVE_TEXT_YES =
+        "💖 I LOVE YOU BUBAB SEE YOU ON VALENTINES DAY!!!!!! HEHEHEHE 💖";
+      const LOVE_TEXT_NO = "😾 NO?? HINDI PWEDE ANG NO OLETEN MO SAGOTAN😼";
 
       const yesBtn = document.getElementById("yesBtn");
       const noBtn = document.getElementById("noBtn");
+      const yesBtn2 = document.getElementById("yesBtn2");
+      const noBtn2 = document.getElementById("noBtn2");
+
+      const noArea = document.getElementById("noArea");
+      const noMsg = document.getElementById("noMsg");
+      const mainBtns = document.getElementById("mainBtns");
+
+      const successOverlay = document.getElementById("successOverlay");
+      const successGif = document.getElementById("successGif");
+      const successText = document.getElementById("successText");
+      const successMini = document.getElementById("successMini");
+      const countdownEl = document.getElementById("countdown");
+      const continueBtn = document.getElementById("continueBtn");
+
       const videoModal = document.getElementById("videoModal");
       const vid = document.getElementById("vid");
-      const noise = document.getElementById("noise");
-      const soundBtn = document.getElementById("soundBtn");
 
+      const boomFlash = document.getElementById("boomFlash");
+      const boomText = document.getElementById("boomText");
+
+      const fxLayer = document.getElementById("fxLayer");
+      const floatingText = document.getElementById("floatingText");
+
+      let countdownTimer = null;
+      let noLoopTimer = null;
+      let noCount = 0;
+
+      let pendingVideoSrc = null;
+      let currentVideoType = "none"; // "yes" | "no" | "none"
+
+      let heartsTimer = null;
+      let sparkleTimer = null;
+
+      // ✅ glitch timer
       let glitchTimer = null;
-      let popupTimer = null;
-      let resetTimer = null;
 
       function rand(min, max) {
         return Math.random() * (max - min) + min;
       }
-
-      function showVideo(src) {
-        // reset
-        vid.pause();
-        vid.removeAttribute("src");
-        vid.load();
-
-        vid.src = src;
-
-        // iOS autoplay rules: must be muted + playsinline
-        vid.muted = true;
-        vid.playsInline = true;
-
-        videoModal.classList.add("on");
-        videoModal.setAttribute("aria-hidden", "false");
-
-        const p = vid.play();
-        if (p && typeof p.catch === "function") {
-          p.catch(() => {
-            // If autoplay is blocked, user can tap the video/sound button
-            console.log("Autoplay blocked; user interaction needed.");
-          });
-        }
-      }
-
-      function stopVideo() {
-        vid.pause();
-        vid.currentTime = 0;
-        vid.removeAttribute("src");
-        vid.load();
-
-        videoModal.classList.remove("on");
-        videoModal.setAttribute("aria-hidden", "true");
-      }
-
-      soundBtn.addEventListener("click", () => {
-        // User gesture = allowed to enable sound
-        vid.muted = false;
-        // If it was blocked, try play again
-        const p = vid.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      });
-
-      // Also allow tapping the video itself to unmute
-      vid.addEventListener("click", () => {
-        vid.muted = false;
-      });
 
       function makePopup(text) {
         const p = document.createElement("div");
         p.className = "popup";
         p.textContent = text;
 
-        const pad = 40;
-        const x = rand(pad, window.innerWidth - pad);
-        const y = rand(pad, window.innerHeight - pad);
-        p.style.left = x + "px";
-        p.style.top = y + "px";
+        const pad = 50;
+        p.style.left = rand(pad, window.innerWidth - pad) + "px";
+        p.style.top = rand(pad, window.innerHeight - pad) + "px";
         p.style.rotate = rand(-6, 6) + "deg";
 
         document.body.appendChild(p);
         setTimeout(() => p.remove(), rand(1200, 2200));
       }
 
-      function clearAllPopups() {
-        document.querySelectorAll(".popup").forEach((el) => el.remove());
+      function openSuccessOverlay() {
+        successOverlay.classList.add("on");
+        successOverlay.setAttribute("aria-hidden", "false");
+      }
+      function closeSuccessOverlay() {
+        successOverlay.classList.remove("on");
+        successOverlay.setAttribute("aria-hidden", "true");
       }
 
-      function startGlitch() {
-        document.body.classList.add("glitching", "rgbSplit");
-        noise.classList.add("on");
+      function openModal() {
+        videoModal.classList.add("on");
+        videoModal.setAttribute("aria-hidden", "false");
+      }
+      function closeModal() {
+        videoModal.classList.remove("on");
+        videoModal.setAttribute("aria-hidden", "true");
+      }
 
-        popupTimer = setInterval(() => {
-          const variants = [
-            "why did you say no?",
-            "WHY DID YOU SAY NO??",
-            "no is not an option 😭",
-            "please reconsider 🥺",
-            "error: heartbreak detected 💔",
-          ];
-          makePopup(variants[Math.floor(Math.random() * variants.length)]);
-          if (Math.random() < 0.35)
-            setTimeout(() => makePopup("why did you say no?"), 80);
-        }, 140);
+      function stopVideo() {
+        vid.pause();
+        vid.currentTime = 0;
+        vid.muted = true;
+        vid.removeAttribute("src");
+        vid.load();
+        currentVideoType = "none";
+      }
+
+      /* ========================= */
+      /* GLITCH (NO VIDEO ONLY)    */
+      /* ========================= */
+      function startGlitch() {
+        stopGlitch();
+        document.body.classList.add("glitchActive");
 
         glitchTimer = setInterval(() => {
-          document.body.style.filter =
-            Math.random() < 0.5
-              ? "saturate(2) contrast(1.2) brightness(1.05)"
-              : "saturate(1.2) contrast(1.1)";
-        }, 120);
+          const bar = document.createElement("div");
+          bar.className = "glitchBar";
+          bar.style.top = Math.random() * window.innerHeight + "px";
+          bar.style.height = Math.random() * 60 + 20 + "px";
+          document.body.appendChild(bar);
+          setTimeout(() => bar.remove(), 220);
+        }, 180);
       }
 
       function stopGlitch() {
-        document.body.classList.remove("glitching", "rgbSplit");
-        noise.classList.remove("on");
-        document.body.style.filter = "";
-        clearInterval(popupTimer);
-        popupTimer = null;
+        document.body.classList.remove("glitchActive");
         clearInterval(glitchTimer);
         glitchTimer = null;
-        clearAllPopups();
+        document.querySelectorAll(".glitchBar").forEach((b) => b.remove());
       }
 
-      function resetToStart() {
+      function stopFX() {
+        clearInterval(heartsTimer);
+        clearInterval(sparkleTimer);
+        heartsTimer = null;
+        sparkleTimer = null;
+        fxLayer.classList.remove("on");
+        floatingText.style.display = "none"; // ✅ hide after video
+        [...fxLayer.querySelectorAll(".heart,.sparkle")].forEach((el) =>
+          el.remove(),
+        );
+      }
+
+      function startFX(type) {
+        stopFX();
+        fxLayer.classList.add("on");
+
+        // ✅ SAME animation sequence, just different text
+        floatingText.textContent =
+          type === "yes" ? LOVE_TEXT_YES : LOVE_TEXT_NO;
+        floatingText.style.display = "block";
+
+        const heartInterval = type === "yes" ? 120 : 240;
+        heartsTimer = setInterval(() => {
+          const h = document.createElement("div");
+          h.className = "heart";
+          h.textContent =
+            type === "yes" ? (Math.random() < 0.5 ? "💖" : "💘") : "💔";
+
+          h.style.left = rand(3, 97) + "vw";
+          h.style.top = rand(70, 95) + "vh";
+          h.style.fontSize =
+            rand(type === "yes" ? 18 : 16, type === "yes" ? 46 : 36) + "px";
+          h.style.animationDuration =
+            rand(type === "yes" ? 1.2 : 1.1, type === "yes" ? 2.1 : 1.8) + "s";
+
+          fxLayer.appendChild(h);
+          setTimeout(() => h.remove(), 2400);
+        }, heartInterval);
+
+        const sparkleInterval = type === "yes" ? 160 : 260;
+        sparkleTimer = setInterval(() => {
+          const s = document.createElement("div");
+          s.className = "sparkle";
+          s.style.left = rand(5, 95) + "vw";
+          s.style.top = rand(5, 70) + "vh";
+          fxLayer.appendChild(s);
+          setTimeout(() => s.remove(), 1400);
+        }, sparkleInterval);
+      }
+
+      function startVideoWithSound(src, type) {
         stopVideo();
-        stopGlitch();
+        currentVideoType = type;
+
+        vid.playsInline = true;
+        vid.src = src;
+        vid.muted = false;
+
+        openModal();
+
+        const p = vid.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(() => {
+            vid.muted = true;
+            vid.play().catch(() => {});
+          });
+        }
+
+        // ✅ now both YES and NO get the same floatingText animation
+        startFX(type);
+
+        // ✅ glitch ONLY for NO video
+        if (type === "no") startGlitch();
       }
 
-      function runNoFlow() {
-        startGlitch();
-        makePopup("why did you say no?");
-        showVideo(NO_VIDEO_SRC);
+      function clearNoLoop() {
+        clearInterval(noLoopTimer);
+        noLoopTimer = null;
+        noArea.classList.remove("on");
+        mainBtns.style.display = "flex";
+      }
 
-        clearTimeout(resetTimer);
-        resetTimer = setTimeout(resetToStart, 10000);
+      function startNoLoop() {
+        noArea.classList.add("on");
+        mainBtns.style.display = "none";
+        noMsg.textContent = NO_LOOP_TEXT;
+
+        if (noLoopTimer) clearInterval(noLoopTimer);
+        noLoopTimer = setInterval(() => makePopup(NO_LOOP_TEXT), 900);
+      }
+
+      function startCountdown(seconds, onDone) {
+        clearInterval(countdownTimer);
+        let n = seconds;
+        countdownEl.textContent = String(n);
+        countdownTimer = setInterval(() => {
+          n -= 1;
+          countdownEl.textContent = String(n);
+          if (n <= 0) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            onDone();
+          }
+        }, 1000);
       }
 
       function runYesFlow() {
-        makePopup("YAY!! 💖 You said yes!");
-        showVideo(YES_VIDEO_SRC);
+        clearNoLoop();
+        noCount = 0;
 
-        clearTimeout(resetTimer);
-        resetTimer = setTimeout(resetToStart, 10000);
+        pendingVideoSrc = YES_VIDEO_SRC;
+        currentVideoType = "yes";
+
+        successGif.src = HAPPY_GIF_SRC;
+        successText.textContent = SUCCESS_TEXT;
+        successMini.textContent = "Get ready…";
+        continueBtn.textContent = "Continue 💖";
+
+        makePopup(YES_POPUP_TEXT);
+        openSuccessOverlay();
+
+        startCountdown(3, () => {
+          successMini.textContent = "Okay… press Continue 💖";
+          countdownEl.textContent = "✓";
+        });
       }
 
+      continueBtn.addEventListener("click", () => {
+        if (!pendingVideoSrc) return;
+
+        closeSuccessOverlay();
+
+        boomFlash.classList.add("active");
+        boomText.classList.add("active");
+        document.body.classList.add("screenShake");
+
+        setTimeout(() => {
+          boomFlash.classList.remove("active");
+          boomText.classList.remove("active");
+          document.body.classList.remove("screenShake");
+
+          startVideoWithSound(pendingVideoSrc, currentVideoType);
+          pendingVideoSrc = null;
+        }, 520);
+      });
+
+      function applyNoEscalation() {
+        if (noCount >= 3) {
+          pendingVideoSrc = NO_VIDEO_SRC;
+          currentVideoType = "no";
+
+          successGif.src = ANGRY_GIF_SRC;
+          successText.textContent = "Dili Parin bubab?";
+          successMini.textContent =
+            "Pendutin mo ung sa baba baka magbagu esep mo";
+          continueBtn.textContent = "pendutin mo 😼";
+
+          openSuccessOverlay();
+
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          countdownEl.textContent = "!";
+        }
+      }
+
+      function runNoFlow() {
+        noCount += 1;
+        startNoLoop();
+        makePopup(NO_LOOP_TEXT);
+        applyNoEscalation();
+      }
+
+      vid.addEventListener("ended", () => {
+        stopGlitch();
+        stopFX();
+        stopVideo();
+        closeModal();
+      });
+
       videoModal.addEventListener("click", (e) => {
-        if (e.target === videoModal) resetToStart();
+        if (e.target === videoModal) {
+          stopGlitch();
+          stopFX();
+          stopVideo();
+          closeModal();
+        }
       });
 
       yesBtn.addEventListener("click", runYesFlow);
       noBtn.addEventListener("click", runNoFlow);
+      yesBtn2.addEventListener("click", runYesFlow);
+      noBtn2.addEventListener("click", runNoFlow);
     </script>
   </body>
 </html>
